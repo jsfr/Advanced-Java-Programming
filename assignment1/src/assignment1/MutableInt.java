@@ -1,4 +1,7 @@
 package assignment1;
+/*
+ *  A mutable integer for AggregationParallel and AggregationRunnable.
+ */
 
 public class MutableInt {
 	private int state;

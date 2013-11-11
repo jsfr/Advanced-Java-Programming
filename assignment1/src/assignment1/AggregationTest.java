@@ -8,6 +8,15 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
+/**
+ * Tests the aggregation methods AggregationSequential and AggregationParallel.
+ * Tests are assertions between the manual calculated results and the returned 
+ * results of the two methods over the hard-coded list dataSet with 
+ * aggregator AddSalary.
+ * @author Jens Fredskov, Henrik Bendt
+ *
+ */
+
 public class AggregationTest {
 	private AggregationSequential aggregationseq;
 	private AggregationParallel aggregationpar;

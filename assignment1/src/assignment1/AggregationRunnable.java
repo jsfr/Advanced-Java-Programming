@@ -2,6 +2,16 @@ package assignment1;
 
 import java.util.List;
 
+/**
+ * Runnable class used by aggregationParallel for threads. 
+ * Use divide and conquer where the list is divided into 2 sublists 
+ * which are given to 2 new threads. These are combined via the combination.
+ * Initialized with the combinator, list of employees and a mutable integer, 
+ * where the result is saved.
+ * @author Jens Fredskov, Henrik Bendt
+ * 
+ */
+
 public class AggregationRunnable implements Runnable {
 
 	private Combination combination;
