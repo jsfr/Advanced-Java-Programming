@@ -6,9 +6,9 @@ public class AggregationRunnable implements Runnable {
 
 	private Combination combination;
 	private List<Employee> list;
-	public Integer result;
+	public MutableInt result;
 
-	public AggregationRunnable(Combination c, List<Employee> e, Integer i) {
+	public AggregationRunnable(Combination c, List<Employee> e, MutableInt i) {
 		this.combination = c;
 		this.list = e;
 		this.result = i;
@@ -18,10 +18,10 @@ public class AggregationRunnable implements Runnable {
 	public void run() {
 		int length = list.size();
 		if (length > 2) {
-			Integer x = new Integer(0);
-			Integer y = new Integer(0);
-			Thread t1 = new Thread(new AggregationRunnable(combination, list.subList(0, length/2-1), x));
-			Thread t2 = new Thread(new AggregationRunnable(combination, list.subList(length/2, length-1), y));
+			MutableInt x = new MutableInt(0);
+			MutableInt y = new MutableInt(0);
+			Thread t1 = new Thread(new AggregationRunnable(combination, list.subList(0, length/2), x));
+			Thread t2 = new Thread(new AggregationRunnable(combination, list.subList(length/2, length), y));
 			t1.start();
 			t2.start();
 			try {
@@ -30,11 +30,11 @@ public class AggregationRunnable implements Runnable {
 			} catch (InterruptedException e) {
 				return;
 			}
-			this.result = Integer.valueOf(this.combination.combine(x.intValue(), y.intValue()));
+			this.result.setInt(this.combination.combine(x.getInt(), y.getInt()));
 		} else if (length == 2) {
-			this.result = Integer.valueOf(this.combination.combine(combination.projectInt(list.get(0)), combination.projectInt(list.get(1))));
+			this.result.setInt(this.combination.combine(combination.projectInt(list.get(0)), combination.projectInt(list.get(1))));
 		} else if (length == 1) {
-			this.result = Integer.valueOf(this.combination.combine(combination.projectInt(list.get(0)), combination.neutral()));
+			this.result.setInt(this.combination.combine(combination.projectInt(list.get(0)), combination.neutral()));
 		}
 	}
 }

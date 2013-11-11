@@ -9,12 +9,12 @@ public class AggregationParallel implements Aggregation {
 		if (employees.isEmpty()) {
 			return 0;
 		} else {
-			Integer x = new Integer(0);
+			MutableInt x = new MutableInt(0);
 			Thread t = new Thread(new AggregationRunnable(c, employees, x));
 			t.start();
 			try {
 				t.join();
-				return x.intValue();
+				return x.getInt();
 			} catch (InterruptedException e) {
 				return 0;
 			}
