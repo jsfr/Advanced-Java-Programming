@@ -1,5 +1,14 @@
 package assignment1;
 
+/**
+ * combine returns the minimum of two given ages. 
+ * projectInt returns age of given employee.
+ * neutral returns the neutral integer for the identity function for finding 
+ * the minimum of two ages, namely the maximum integer possible.
+ * @author Jens Fredskov, Henrik Bendt
+ *
+ */
+
 public class MinAge implements Combination {
 
 	@Override

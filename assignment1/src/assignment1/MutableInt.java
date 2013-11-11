@@ -1,6 +1,8 @@
 package assignment1;
-/*
+/**
  *  A mutable integer for AggregationParallel and AggregationRunnable.
+ *  @author Jens Fredskov, Henrik Bendt
+ *  
  */
 
 public class MutableInt {

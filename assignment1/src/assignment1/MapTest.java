@@ -8,6 +8,17 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
+/**
+ * Tests the correctness of combination methods MapSequential, MapParallel and 
+ * MapChunked.
+ * Does not test parallelism.
+ * Tests are assertions between the manual calculated results and the returned 
+ * results of the three maps over the hard-coded list dataSet with mutation 
+ * IncreaseSalary.
+ * @author Jens Fredskov, Henrik Bendt
+ *
+ */
+
 public class MapTest {
 	private MapSequential mapseq;
 	private MapParallel mappar;

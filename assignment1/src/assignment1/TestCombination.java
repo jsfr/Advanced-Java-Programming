@@ -9,7 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * @author jens
+ * @author Jens Fredskov, Henrik Bendt
  *
  */
 public class TestCombination {

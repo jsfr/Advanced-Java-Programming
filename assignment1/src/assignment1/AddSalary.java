@@ -1,7 +1,7 @@
 package assignment1;
 
 /**
- * Sums the two given salaries. 
+ * combine returns the sum of the two given salaries. 
  * projectInt returns salary of given employee
  * neutral returns the neutral integer for the identity function for adding 
  * two salaries, namely 0.

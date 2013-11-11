@@ -1,5 +1,12 @@
 package assignment1;
 
+/**
+ * Computes the mutation on the given employee.
+ * Used by MapParallel.
+ * @author Jens Fredskov, Henrik Bendt
+ *
+ */
+
 public class MapRunnable implements Runnable {
 
 	private Employee employee;

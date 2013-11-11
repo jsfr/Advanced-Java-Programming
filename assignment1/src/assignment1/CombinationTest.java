@@ -7,6 +7,16 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
+/**
+ * Tests the assosiativ and neutral property of the combination methods 
+ * AddSalary and MinAge.
+ * Tests are over a random generated list, where salary is between 3000 and 5000
+ * and age is between 20 and 60.
+ * Tests are iterated 1000 times each.
+ * @author Jens Fredskov, Henrik Bendt
+ *
+ */
+
 public class CombinationTest {
 	private MinAge minage;
 	private AddSalary addsal;
