@@ -47,21 +47,26 @@ public class AMonitor implements Monitor, Runnable {
         int discomfortLevel = (int) Math.floor(Math.min(5,Math.max(discomfortLevel1, discomfortLevel2)));
 
         for(int i = discomfortLevel; i < 6; i++) {
-            if (ss.get(i) != null) {
-                for(Subscriber s : ss.get(i)) {
-                    s.pushDiscomfortWarning(discomfortLevel);
-                }
+        	synchronized(this){
+	            if (ss.get(i) != null) {
+	            	for(Subscriber s : ss.get(i)) {
+	                    s.pushDiscomfortWarning(discomfortLevel);
+	                }
+            	}
             }
         }
     }
 
     @Override
     public int registerSubscriber(int discomfortLevel, Subscriber subscriber) {
-        if(ss.get(discomfortLevel) == null){
-            ss.put(discomfortLevel, new ArrayList<Subscriber>());
-        }
-        List<Subscriber> l = ss.get(discomfortLevel);
-        l.add(subscriber);
+    	synchronized(this){
+	        if(ss.get(discomfortLevel) == null){
+	            ss.put(discomfortLevel, new ArrayList<Subscriber>());
+	        }
+	        List<Subscriber> l = ss.get(discomfortLevel);
+	        
+	        l.add(subscriber);
+    	}
         return 0;
     }
 
