@@ -26,24 +26,25 @@ public class ASubscriber implements Subscriber, Runnable {
 
     @Override
     public void processDiscomfortWarning(int discomfortLevel) {
+    	String name = Thread.currentThread().getName();
         switch (discomfortLevel) {
         case 1:
-            System.out.println("Feeling so nice (^_-). Level 1");
+            System.out.println("Feeling so nice (^_-). Level 1, thread name: " + name);
             break;
         case 2:
-            System.out.println("Still quite okay. Level 2");
+            System.out.println("Still quite okay. Level 2, thread name: " + name);
             break;
         case 3:
-            System.out.println("This is not nice. Level 3");
+            System.out.println("This is not nice. Level 3, thread name: " + name);
             break;
         case 4:
-            System.out.println("It is uncomfortable. Level 4");
+            System.out.println("It is uncomfortable. Level 4, thread name: " + name);
             break;
         case 5:
-            System.out.println("It hate this planet! Level 5");
+            System.out.println("It hate this planet! Level 5, thread name: " + name);
             break;
         default:
-            System.out.println("Error:" + discomfortLevel);
+            System.out.println("Error:" + discomfortLevel + ", thread name: " + name);
         }
     }
 
