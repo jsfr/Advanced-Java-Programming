@@ -165,10 +165,11 @@ public class EmployeeDBHTTPClient implements EmployeeDBClient, EmployeeDB {
     	List<Employee> emps = new ArrayList<Employee>();
     	try {
     		exchange.setMethod("POST");
-    		for(int dpId : departmentIds){
-    			exchange.setURL(this.getServerURLForDepartment(dpId));
+    		for(String url : departmentServerURLMap.values()) { //Broadcast to all serers!
+    			exchange.setURL(url);
     			exchange.setRequestURI("/listEmployeesInDept");
-    			Buffer postData = new ByteArrayBuffer(String.valueOf(dpId));
+    			String xmlString = xmlStream.toXML(departmentIds);
+    			Buffer postData = new ByteArrayBuffer(xmlString);
     			exchange.setRequestContent(postData);
     			client.send(exchange);
 	    		
@@ -201,8 +202,6 @@ public class EmployeeDBHTTPClient implements EmployeeDBClient, EmployeeDB {
 			System.out.println("Could not recieve list of employee. IO exception.");
 		} catch (InterruptedException e) {
 			System.out.println("Could not recieve list of employee. Interrupted exception.");
-		} catch (DepartmentNotFoundException e){
-    		System.out.println(e);
 		}
         return null;
     }
