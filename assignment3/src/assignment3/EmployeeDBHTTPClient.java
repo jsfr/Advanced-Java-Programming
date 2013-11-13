@@ -80,10 +80,12 @@ public class EmployeeDBHTTPClient implements EmployeeDBClient, EmployeeDB {
     public void addEmployee(Employee emp) {
     	try {
     		exchange.setMethod("GET");
-    		String xmlString = xmlStream.toXML(emp);
     		exchange.setURL(this.getServerURLForDepartment(emp.getDepartment()));
     		exchange.setRequestURI("/addEmployee");
-    		exchange.addRequestHeader("employee",xmlString);  //no clue if this works. Fuck Jetty and its documentation
+    		exchange.addRequestHeader("id", String.valueOf(emp.getId()));
+    		exchange.addRequestHeader("name", emp.getName());
+    		exchange.addRequestHeader("department", String.valueOf(emp.getDepartment()));
+    		exchange.addRequestHeader("salary", String.valueOf(emp.getSalary()));
     		client.send(exchange);
     		
     		int exchangeState = exchange.waitForDone();
