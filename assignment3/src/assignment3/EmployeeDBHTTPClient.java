@@ -88,6 +88,8 @@ public class EmployeeDBHTTPClient implements EmployeeDBClient, EmployeeDB {
     		exchange.addRequestHeader("salary", String.valueOf(emp.getSalary()));
     		client.send(exchange);
     		
+    		System.out.println(exchange.getAddress());
+    		
     		int exchangeState = exchange.waitForDone();
     		System.out.println(String.valueOf(exchangeState));
     		if (exchangeState == HttpExchange.STATUS_COMPLETED) {
