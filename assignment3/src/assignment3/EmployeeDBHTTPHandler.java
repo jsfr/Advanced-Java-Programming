@@ -3,7 +3,6 @@ package assignment3;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.List;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -40,7 +39,12 @@ public class EmployeeDBHTTPHandler extends AbstractHandler {
         if (method.equals("get")) {
             switch (uri) {
             case "/addemployee":
-                Employee emp = (Employee) xmlStream.fromXML(req.getParameter("employee"));
+                Employee emp = new Employee();
+                emp.setName(req.getParameter("name"));
+                String id = req.getParameter("id");
+                emp.setId(Integer.parseInt(id));
+                emp.setDepartment(Integer.parseInt(req.getParameter("department")));
+                emp.setSalary(Float.parseFloat(req.getParameter("salary")));
                 SimpleEmployeeDB.getInstance().addEmployee(emp);
                 break;
             case "/listallemployees":

@@ -23,5 +23,8 @@
 	<classpathentry kind="lib" path="lib/jetty-distribution-8.1.14.v20131031/lib/jetty-websocket-8.1.14.v20131031.jar"/>
 	<classpathentry kind="lib" path="lib/jetty-distribution-8.1.14.v20131031/lib/jetty-xml-8.1.14.v20131031.jar"/>
 	<classpathentry kind="lib" path="lib/jetty-distribution-8.1.14.v20131031/lib/servlet-api-3.0.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/xstream-1.4.5/lib/xstream-1.4.5.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
