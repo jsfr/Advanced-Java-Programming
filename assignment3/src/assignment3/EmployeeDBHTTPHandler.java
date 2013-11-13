@@ -2,7 +2,9 @@ package assignment3;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -33,16 +35,15 @@ public class EmployeeDBHTTPHandler extends AbstractHandler {
         res.setContentType("text/html;charset=utf-8");
         res.setStatus(HttpServletResponse.SC_OK);
         String uri = req.getRequestURI().trim().toLowerCase();
+        System.out.println(uri);
         XStream xmlStream = new XStream(new StaxDriver());
         String method = req.getMethod().toLowerCase();
-
         if (method.equals("get")) {
             switch (uri) {
             case "/addemployee":
                 Employee emp = new Employee();
                 emp.setName(req.getParameter("name"));
-                String id = req.getParameter("id");
-                emp.setId(Integer.parseInt(id));
+                emp.setId(Integer.parseInt(req.getParameter("id")));
                 emp.setDepartment(Integer.parseInt(req.getParameter("department")));
                 emp.setSalary(Float.parseFloat(req.getParameter("salary")));
                 SimpleEmployeeDB.getInstance().addEmployee(emp);
@@ -62,14 +63,12 @@ public class EmployeeDBHTTPHandler extends AbstractHandler {
 
             switch (uri) {
             case "/listemployeesindept":
-                List<Integer> deps = (List<Integer>) xmlStream.fromXML(content);
-                List<Employee> emps1 = SimpleEmployeeDB.getInstance()
-                        .listEmployeesInDept(deps);
+                ArrayList<Integer> deps = (ArrayList<Integer>) xmlStream.fromXML(content);
+                List<Employee> emps1 = SimpleEmployeeDB.getInstance().listEmployeesInDept(deps);
                 res.getWriter().println(xmlStream.toXML(emps1));
                 break;
             case "/incrementsalaryofdepartment":
-                List<SalaryIncrement> incs = (List<SalaryIncrement>) xmlStream
-                        .fromXML(content);
+                ArrayList<SalaryIncrement> incs = (ArrayList<SalaryIncrement>) xmlStream.fromXML(content);
                 try {
                     SimpleEmployeeDB.getInstance().incrementSalaryOfDepartment(incs);
                 } catch (DepartmentNotFoundException e) {

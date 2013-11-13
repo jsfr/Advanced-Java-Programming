@@ -3,6 +3,8 @@ package assignment3;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -26,9 +28,10 @@ import com.thoughtworks.xstream.io.xml.StaxDriver;
  * EmployeeDBHTTPServer
  *
  * @author
+ * @param <E>
  *
  */
-public class EmployeeDBHTTPClient implements EmployeeDBClient, EmployeeDB {
+public class EmployeeDBHTTPClient<E> implements EmployeeDBClient, EmployeeDB {
     private HttpClient client = null;
     private static final String SPLIT_DEPT = ";";
     private static final String filePath = "/home/jens/Documents/DIKU/year4/AJP/assignments/assignment3/src/assignment3/departmentservermapping.properties";
@@ -38,7 +41,6 @@ public class EmployeeDBHTTPClient implements EmployeeDBClient, EmployeeDB {
 
     public EmployeeDBHTTPClient() throws Exception {
         initMappings();
-        exchange = new ContentExchange();
         xmlStream = new XStream(new StaxDriver());
         // You need to initiate HTTPClient here
         client = new HttpClient();
@@ -78,46 +80,51 @@ public class EmployeeDBHTTPClient implements EmployeeDBClient, EmployeeDB {
 
     @Override
     public void addEmployee(Employee emp) {
+        exchange = new ContentExchange();
         try {
             exchange.setMethod("GET");
-            exchange.setURL(this.getServerURLForDepartment(emp.getDepartment()));
-            exchange.setRequestURI("/addEmployee");
-            exchange.addRequestHeader("id", String.valueOf(emp.getId()));
-            exchange.addRequestHeader("name", emp.getName());
-            exchange.addRequestHeader("department", String.valueOf(emp.getDepartment()));
-            exchange.addRequestHeader("salary", String.valueOf(emp.getSalary()));
+            // exchange.setURL(this.getServerURLForDepartment(emp.getDepartment()));
+            // exchange.setRequestURI("/addEmployee");
+            // exchange.addRequestHeader("id", String.valueOf(emp.getId()));
+            // exchange.addRequestHeader("name", emp.getName());
+            // exchange.addRequestHeader("department",
+            // String.valueOf(emp.getDepartment()));
+            // exchange.addRequestHeader("salary",
+            // String.valueOf(emp.getSalary()));
+            String url = this.getServerURLForDepartment(emp.getDepartment())
+                    + "addEmployee?" + "id=" + String.valueOf(emp.getId())
+                    + "&name=" + emp.getName() + "&department="
+                    + String.valueOf(emp.getDepartment()) + "&salary="
+                    + String.valueOf(emp.getSalary());
+            exchange.setURL(url);
             client.send(exchange);
 
-            System.out.println(emp.getId());
-
-            System.out.println(exchange.getRequestFields().toString());
-
             int exchangeState = exchange.waitForDone();
-            System.out.println(String.valueOf(exchangeState));
+            // System.out.println(String.valueOf(exchangeState));
             if (exchangeState == HttpExchange.STATUS_COMPLETED) {
                 int httpStatus = exchange.getResponseStatus();
 
-                switch(httpStatus) {
-                    case HttpServletResponse.SC_OK:
-                            System.out.println("Status_ok");
-                            break;
-                    default:
-                        System.out.println("Request not found.");
-                        return;
+                switch (httpStatus) {
+                case HttpServletResponse.SC_OK:
+                    System.out.println("Status_ok");
+                    break;
+                default:
+                    System.out.println("Request not found.");
+                    return;
                 }
             } else if (exchangeState == HttpExchange.STATUS_EXCEPTED) {
                 System.out.println("Error occured in connection.");
             } else if (exchangeState == HttpExchange.STATUS_EXPIRED) {
                 System.out.println("Request timed out.");
             }
-        } catch (DepartmentNotFoundException e){
+        } catch (DepartmentNotFoundException e) {
             System.out.println(e);
         } catch (IOException e) {
             System.out.println("IO exception.");
         } catch (InterruptedException e) {
-            System.out.println("Could not recieve list of employee. Interrupted exception.");
+            System.out
+                    .println("Could not recieve list of employee. Interrupted exception.");
         }
-
     }
 
     /**
@@ -128,26 +135,28 @@ public class EmployeeDBHTTPClient implements EmployeeDBClient, EmployeeDB {
     public List<Employee> listAllEmployees() {
         List<Employee> emps = new ArrayList<Employee>();
         try {
-            exchange.setMethod("GET");
-            for(String url : departmentServerURLMap.values()) {
-                exchange.setURL(url);
-                exchange.setRequestURI("listAllEmployees");
+            HashSet<String> hs = new HashSet<String>();
+            hs.addAll(departmentServerURLMap.values());
+            for (String url : hs) {
+                exchange = new ContentExchange();
+                exchange.setMethod("GET");
+                exchange.setURL(url + "listAllEmployees");
                 client.send(exchange);
 
-                //Wait for result
+                // Wait for result
                 int exchangeState = exchange.waitForDone();
-                System.out.println(String.valueOf(exchangeState));
+                // System.out.println(String.valueOf(exchangeState));
                 if (exchangeState == HttpExchange.STATUS_COMPLETED) {
                     int httpStatus = exchange.getResponseStatus();
-                    switch(httpStatus) {
-                        case HttpServletResponse.SC_OK:
-                            System.out.println("Status_ok");
-                            String content = exchange.getResponseContent();
-                            emps.addAll((List<Employee>) xmlStream.fromXML(content));
-                            break;
-                        default:
-                            System.out.println("Request not found.");
-                            return null;
+                    switch (httpStatus) {
+                    case HttpServletResponse.SC_OK:
+                        System.out.println("Status_ok");
+                        String content = exchange.getResponseContent();
+                        emps.addAll((List<Employee>) xmlStream.fromXML(content));
+                        break;
+                    default:
+                        System.out.println("Request not found.");
+                        return null;
                     }
                 } else if (exchangeState == HttpExchange.STATUS_EXCEPTED) {
                     System.out.println("Error occured in connection.");
@@ -159,9 +168,11 @@ public class EmployeeDBHTTPClient implements EmployeeDBClient, EmployeeDB {
             }
             return emps;
         } catch (IOException e) {
-            System.out.println("Could not recieve list of employee. IO exception.");
+            System.out
+                    .println("Could not recieve list of employee. IO exception.");
         } catch (InterruptedException e) {
-            System.out.println("Could not recieve list of employee. Interrupted exception.");
+            System.out
+                    .println("Could not recieve list of employee. Interrupted exception.");
         }
         return null;
     }
@@ -171,8 +182,10 @@ public class EmployeeDBHTTPClient implements EmployeeDBClient, EmployeeDB {
     public List<Employee> listEmployeesInDept(List<Integer> departmentIds) {
         List<Employee> emps = new ArrayList<Employee>();
         try {
-            exchange.setMethod("POST");
-            for(String url : departmentServerURLMap.values()) { //Broadcast to all serers!
+            for (String url : departmentServerURLMap.values()) { // Broadcast to
+                                                                 // all serers!
+                exchange = new ContentExchange();
+                exchange.setMethod("POST");
                 exchange.setURL(url);
                 exchange.setRequestURI("/listEmployeesInDept");
                 String xmlString = xmlStream.toXML(departmentIds);
@@ -180,42 +193,42 @@ public class EmployeeDBHTTPClient implements EmployeeDBClient, EmployeeDB {
                 exchange.setRequestContent(postData);
                 client.send(exchange);
 
-                //Wait for result
+                // Wait for result
                 int exchangeState = exchange.waitForDone();
-                System.out.println(String.valueOf(exchangeState));
+                // System.out.println(String.valueOf(exchangeState));
                 if (exchangeState == HttpExchange.STATUS_COMPLETED) {
                     int httpStatus = exchange.getResponseStatus();
-                    switch(httpStatus) {
+                    switch (httpStatus) {
                     case HttpServletResponse.SC_OK:
-                            System.out.println("Status_ok");
-                            String content = exchange.getResponseContent();
-                            emps.addAll((List<Employee>) xmlStream.fromXML(content));
-                            break;
+                        System.out.println("Status_ok");
+                        String content = exchange.getResponseContent();
+                        emps.addAll((List<Employee>) xmlStream.fromXML(content));
+                        break;
                     default:
-                            System.out.println("Request not found.");
-                            return null;
+                        System.out.println("Request not found.");
+                        return new ArrayList<Employee>();
                     }
                 } else if (exchangeState == HttpExchange.STATUS_EXCEPTED) {
                     System.out.println("Error occured in connection.");
-                    return null;
+                    return new ArrayList<Employee>();
                 } else if (exchangeState == HttpExchange.STATUS_EXPIRED) {
                     System.out.println("Request timed out.");
-                    return null;
+                    return new ArrayList<Employee>();
                 }
             }
-
-            client.send(exchange);
         } catch (IOException e) {
-            System.out.println("Could not recieve list of employee. IO exception.");
+            System.out
+                    .println("Could not recieve list of employee. IO exception.");
         } catch (InterruptedException e) {
-            System.out.println("Could not recieve list of employee. Interrupted exception.");
+            System.out
+                    .println("Could not recieve list of employee. Interrupted exception.");
         }
-        return null;
+        return new ArrayList<Employee>();
     }
 
     /**
-     * This action is not atomic, that is, it is not guaranteed that if an
-     * error occurs, no salary is incremented.
+     * This action is not atomic, that is, it is not guaranteed that if an error
+     * occurs, no salary is incremented.
      */
     @Override
     public void incrementSalaryOfDepartment(
@@ -223,31 +236,40 @@ public class EmployeeDBHTTPClient implements EmployeeDBClient, EmployeeDB {
             throws DepartmentNotFoundException,
             NegativeSalaryIncrementException {
         try {
-            exchange.setMethod("POST");
-            for(SalaryIncrement s : salaryIncrements){
-                String xmlString = xmlStream.toXML(s);
-                exchange.setURL(this.getServerURLForDepartment(s.getDepartment()));
+            Map<String, List<SalaryIncrement>> salMap = new HashMap<String, List<SalaryIncrement>>();
+            for (SalaryIncrement s : salaryIncrements) {
+                String url = this.getServerURLForDepartment(s.getDepartment());
+                if (salMap.get(url) == null) {
+                    salMap.put(url, new ArrayList<SalaryIncrement>());
+                }
+                salMap.get(url).add(s);
+            }
+            for (String s : salMap.keySet()) {
+                exchange = new ContentExchange();
+                exchange.setMethod("POST");
+                String xmlString = xmlStream.toXML(salMap.get(s));
+                exchange.setURL(s);
                 exchange.setRequestURI("/incrementSalaryOfDepartment");
                 Buffer postData = new ByteArrayBuffer(xmlString);
                 exchange.setRequestContent(postData);
                 client.send(exchange);
 
-                //Wait for result
+                // Wait for result
                 int exchangeState = exchange.waitForDone();
-                System.out.println(String.valueOf(exchangeState));
+                // System.out.println(String.valueOf(exchangeState));
                 if (exchangeState == HttpExchange.STATUS_COMPLETED) {
                     int httpStatus = exchange.getResponseStatus();
-                    switch(httpStatus) {
+                    switch (httpStatus) {
                     case HttpServletResponse.SC_OK:
-                            System.out.println("Status_ok");
-                            break;
+                        System.out.println("Status_ok");
+                        break;
                     case HttpServletResponse.SC_INTERNAL_SERVER_ERROR:
-                            System.out.println("Could not add employee.");
-                            throw new NegativeSalaryIncrementException();
+                        System.out.println("Could not add employee.");
+                        throw new NegativeSalaryIncrementException();
                     default:
-                            System.out.println("Request not found.");
-                            return;
-                }
+                        System.out.println("Request not found.");
+                        return;
+                    }
                 } else if (exchangeState == HttpExchange.STATUS_EXCEPTED) {
                     System.out.println("Error occured in connection.");
                     return;
@@ -257,10 +279,12 @@ public class EmployeeDBHTTPClient implements EmployeeDBClient, EmployeeDB {
                 }
             }
         } catch (IOException e) {
-            System.out.println("Could not recieve list of employee. IO exception.");
+            System.out
+                    .println("Could not recieve list of employee. IO exception.");
         } catch (InterruptedException e) {
-            System.out.println("Could not recieve list of employee. Interrupted exception.");
-        } catch (DepartmentNotFoundException e){
+            System.out
+                    .println("Could not recieve list of employee. Interrupted exception.");
+        } catch (DepartmentNotFoundException e) {
             System.out.println(e);
         }
 
