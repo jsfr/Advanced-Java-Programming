@@ -82,10 +82,22 @@ public class EmployeeDBHTTPClient implements EmployeeDBClient, EmployeeDB {
     		exchange.setURL(this.getServerURLForDepartment(emp.getDepartment()));
     		exchange.setRequestHeader("addEmployee",xmlString);  //no clue if this works. Fuck Jetty and its documentation
     		client.send(exchange);
+    		
+    		int exchangeState = exchange.waitForDone();
+    		System.out.println(String.valueOf(exchangeState));
+    		if (exchangeState == HttpExchange.STATUS_COMPLETED) {
+    			System.out.println("Status_ok");
+    		} else if (exchangeState == HttpExchange.STATUS_EXCEPTED) {
+    			System.out.println("Error occured. Could not get all employees. Continuing.");
+    		} else if (exchangeState == HttpExchange.STATUS_EXPIRED) {
+    			System.out.println("Request timed out. Could not get all employees. Continuing.");
+    		}
     	} catch (DepartmentNotFoundException e){
     		System.out.println(e);
     	} catch (IOException e) {
 			System.out.println("Could not add employee. IO exception.");
+		} catch (InterruptedException e) {
+			System.out.println("Could not recieve list of employee. Interrupted exception.");
 		}
     }
 
@@ -105,7 +117,9 @@ public class EmployeeDBHTTPClient implements EmployeeDBClient, EmployeeDB {
 	    		
 	    		//Wait for result
 	    		int exchangeState = exchange.waitForDone();
+	    		System.out.println(String.valueOf(exchangeState));
 	    		if (exchangeState == HttpExchange.STATUS_COMPLETED) {
+	    			System.out.println("Status_ok");
 	    			String content = exchange.getResponseContent();
 	    			emps.addAll((List<Employee>) xmlStream.fromXML(content));
 	    		} else if (exchangeState == HttpExchange.STATUS_EXCEPTED) {
@@ -139,7 +153,9 @@ public class EmployeeDBHTTPClient implements EmployeeDBClient, EmployeeDB {
 	    		
 	    		//Wait for result
 	    		int exchangeState = exchange.waitForDone();
+	    		System.out.println(String.valueOf(exchangeState));
 	    		if (exchangeState == HttpExchange.STATUS_COMPLETED) {
+	    			System.out.println("Status_ok");
 	    			String content = exchange.getResponseContent();
 	    			emps.addAll((List<Employee>) xmlStream.fromXML(content));
 	    		} else if (exchangeState == HttpExchange.STATUS_EXCEPTED) {
@@ -186,7 +202,9 @@ public class EmployeeDBHTTPClient implements EmployeeDBClient, EmployeeDB {
 	    		
 	    		//Wait for result
 	    		int exchangeState = exchange.waitForDone();
+	    		System.out.println(String.valueOf(exchangeState));
 	    		if (exchangeState == HttpExchange.STATUS_COMPLETED) {
+	    			System.out.println("Status_ok");
 	    			//Do nothing
 	    		} else if (exchangeState == HttpExchange.STATUS_EXCEPTED) {
 	    			System.out.println("Error occured. Could not get all employees. Continuing.");
