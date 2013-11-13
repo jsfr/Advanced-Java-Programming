@@ -35,7 +35,6 @@ public class EmployeeDBHTTPHandler extends AbstractHandler {
         res.setContentType("text/html;charset=utf-8");
         res.setStatus(HttpServletResponse.SC_OK);
         String uri = req.getRequestURI().trim().toLowerCase();
-        System.out.println(uri);
         XStream xmlStream = new XStream(new StaxDriver());
         String method = req.getMethod().toLowerCase();
         if (method.equals("get")) {

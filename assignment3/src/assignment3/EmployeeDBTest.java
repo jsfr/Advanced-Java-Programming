@@ -14,9 +14,9 @@ import org.junit.Test;
 /**
  * Generated JUnit test class to test the EmployeeDB interface. It can be used
  * to test both the client and the server implementation.
- * 
+ *
  * @author bonii
- * 
+ *
  */
 public class EmployeeDBTest {
     private Server[] servers = new Server[3];
@@ -25,7 +25,7 @@ public class EmployeeDBTest {
 
     /*
      * @SetUp protected void setUp() {
-     * 
+     *
      * }
      */
 
@@ -212,7 +212,6 @@ public class EmployeeDBTest {
 
         for (Employee emp : emps) {
             Float salary = emp.getSalary();
-            System.out.println(salary);
             assertEquals(0, salary.compareTo((float) 0));
         }
 

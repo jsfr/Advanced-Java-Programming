@@ -83,14 +83,6 @@ public class EmployeeDBHTTPClient<E> implements EmployeeDBClient, EmployeeDB {
         exchange = new ContentExchange();
         try {
             exchange.setMethod("GET");
-            // exchange.setURL(this.getServerURLForDepartment(emp.getDepartment()));
-            // exchange.setRequestURI("/addEmployee");
-            // exchange.addRequestHeader("id", String.valueOf(emp.getId()));
-            // exchange.addRequestHeader("name", emp.getName());
-            // exchange.addRequestHeader("department",
-            // String.valueOf(emp.getDepartment()));
-            // exchange.addRequestHeader("salary",
-            // String.valueOf(emp.getSalary()));
             String url = this.getServerURLForDepartment(emp.getDepartment())
                     + "addEmployee?" + "id=" + String.valueOf(emp.getId())
                     + "&name=" + emp.getName() + "&department="
@@ -100,14 +92,12 @@ public class EmployeeDBHTTPClient<E> implements EmployeeDBClient, EmployeeDB {
             client.send(exchange);
 
             int exchangeState = exchange.waitForDone();
-            // System.out.println(String.valueOf(exchangeState));
             if (exchangeState == HttpExchange.STATUS_COMPLETED) {
                 int httpStatus = exchange.getResponseStatus();
 
                 switch (httpStatus) {
                 case HttpServletResponse.SC_OK:
-                    System.out.println("Status_ok");
-                    break;
+                    return;
                 default:
                     System.out.println("Request not found.");
                     return;
@@ -122,8 +112,7 @@ public class EmployeeDBHTTPClient<E> implements EmployeeDBClient, EmployeeDB {
         } catch (IOException e) {
             System.out.println("IO exception.");
         } catch (InterruptedException e) {
-            System.out
-                    .println("Could not recieve list of employee. Interrupted exception.");
+            System.out.println("Could not recieve list of employee. Interrupted exception.");
         }
     }
 
@@ -145,12 +134,10 @@ public class EmployeeDBHTTPClient<E> implements EmployeeDBClient, EmployeeDB {
 
                 // Wait for result
                 int exchangeState = exchange.waitForDone();
-                // System.out.println(String.valueOf(exchangeState));
                 if (exchangeState == HttpExchange.STATUS_COMPLETED) {
                     int httpStatus = exchange.getResponseStatus();
                     switch (httpStatus) {
                     case HttpServletResponse.SC_OK:
-                        System.out.println("Status_ok");
                         String content = exchange.getResponseContent();
                         emps.addAll((List<Employee>) xmlStream.fromXML(content));
                         break;
@@ -168,11 +155,9 @@ public class EmployeeDBHTTPClient<E> implements EmployeeDBClient, EmployeeDB {
             }
             return emps;
         } catch (IOException e) {
-            System.out
-                    .println("Could not recieve list of employee. IO exception.");
+            System.out.println("Could not recieve list of employee. IO exception.");
         } catch (InterruptedException e) {
-            System.out
-                    .println("Could not recieve list of employee. Interrupted exception.");
+            System.out.println("Could not recieve list of employee. Interrupted exception.");
         }
         return null;
     }
@@ -195,12 +180,10 @@ public class EmployeeDBHTTPClient<E> implements EmployeeDBClient, EmployeeDB {
 
                 // Wait for result
                 int exchangeState = exchange.waitForDone();
-                // System.out.println(String.valueOf(exchangeState));
                 if (exchangeState == HttpExchange.STATUS_COMPLETED) {
                     int httpStatus = exchange.getResponseStatus();
                     switch (httpStatus) {
                     case HttpServletResponse.SC_OK:
-                        System.out.println("Status_ok");
                         String content = exchange.getResponseContent();
                         emps.addAll((List<Employee>) xmlStream.fromXML(content));
                         break;
@@ -256,12 +239,10 @@ public class EmployeeDBHTTPClient<E> implements EmployeeDBClient, EmployeeDB {
 
                 // Wait for result
                 int exchangeState = exchange.waitForDone();
-                // System.out.println(String.valueOf(exchangeState));
                 if (exchangeState == HttpExchange.STATUS_COMPLETED) {
                     int httpStatus = exchange.getResponseStatus();
                     switch (httpStatus) {
                     case HttpServletResponse.SC_OK:
-                        System.out.println("Status_ok");
                         break;
                     case HttpServletResponse.SC_INTERNAL_SERVER_ERROR:
                         System.out.println("Could not add employee.");
@@ -279,11 +260,9 @@ public class EmployeeDBHTTPClient<E> implements EmployeeDBClient, EmployeeDB {
                 }
             }
         } catch (IOException e) {
-            System.out
-                    .println("Could not recieve list of employee. IO exception.");
+            System.out.println("Could not recieve list of employee. IO exception.");
         } catch (InterruptedException e) {
-            System.out
-                    .println("Could not recieve list of employee. Interrupted exception.");
+            System.out.println("Could not recieve list of employee. Interrupted exception.");
         } catch (DepartmentNotFoundException e) {
             System.out.println(e);
         }
