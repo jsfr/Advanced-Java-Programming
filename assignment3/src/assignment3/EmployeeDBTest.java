@@ -5,7 +5,11 @@ import static org.junit.Assert.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
+import org.eclipse.jetty.server.Server;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -17,34 +21,52 @@ import org.junit.Test;
  *
  */
 public class EmployeeDBTest {
+	private Server[] servers = new Server[3];
     private EmployeeDB employeeDB = null;
     Random r = null;
+    Lock lock = new ReentrantLock();
 
+    /*@SetUp
+    protected void setUp() {
+    	
+    }*/
+    
     @Before
     public void setUp() throws Exception {
-        employeeDB = SimpleEmployeeDB.getInstance();
+    	//lock.lock();
+    	Integer[] ports = {8080,8088, 8089};
+    	
+    	for(int i = 0; i < 3; i++) {
+    		System.out.println("Setting up server: " + ports[i]);
+    		servers[i] = new Server(ports[i]);
+    		EmployeeDBHTTPHandler handler = new EmployeeDBHTTPHandler(); 
+    		servers[i].setHandler(handler);
+    		servers[i].start();
+    		//myServer.join();
+    	}
+		
+        //employeeDB = SimpleEmployeeDB.getInstance();
         r = new Random();
         //By setting the employeeDB
         // to either the server implementation first, you can write the server
         // implementation and test it. You dont even have to run the Jetty
         // HTTP server, you can just implement SimpleEmployeeDB and test it
         //
-        // employeeDB = new EmployeeDBHTTPClient(); Once you have written the
+         employeeDB = new EmployeeDBHTTPClient(); //Once you have written the
         // client you can test the full system for the same test cases and it
         // should work, welcome to Unit testing :-)
         //
     }
     
-    public List<Employee> DB(int n) {
-    	List<Employee> emps = new ArrayList<Employee>();
-    	for(int i = 0; i < n ; i++) {
-    		Employee emp = new Employee();
-    		emp.setId(i);
-    		emps.add(emp);
-    		employeeDB.addEmployee(emp);
+    @After
+    public void teardown() throws Exception {
+    	for(int i = 0; i < 3; i++) {
+    		servers[i].stop();
+    		//servers[i].join();
     	}
-    	return emps;
+    	//lock.unlock();
     }
+    
 
     /**
      * Make sure that if an object has been added, it is actually there
@@ -53,6 +75,8 @@ public class EmployeeDBTest {
     public void testAddEmployee() {
     	for(int i = 0; i < r.nextInt(); i++) {
     		Employee emp = new Employee();
+    		emp.setId(42);
+    		emp.setDepartment(r.nextInt(10));
     		employeeDB.addEmployee(emp);
     		assertTrue(employeeDB.listAllEmployees().contains(emp));
     	}
@@ -64,23 +88,26 @@ public class EmployeeDBTest {
      */
     @Test
     public void testListAllEmployees() {
-    	Random r = new Random();
-    	for(int j = 0; j < 1000; j++) {
+    	List<Employee> emps = new ArrayList<Employee>();
+		
+		assertEquals(emps,employeeDB.listAllEmployees());
+		
+    	for(int i = 0; i < 1000; i++) {
         	
-    		List<Employee> emps = new ArrayList<Employee>();
         	
         	//Make a random number of entries
-        	for(int i = 0; i < r.nextInt() ; i++) {
+        	//for(int i = 0; i < r.nextInt() ; i++) {
 	    		Employee emp = new Employee();
 	    		emp.setId(i);
 	    		emps.add(emp);
 	    		employeeDB.addEmployee(emp);
-	    	};
+	    	//};
 	    	
-	    	List<Employee> dbEmps = employeeDB.listAllEmployees();
 	    	
-	    	assertTrue(dbEmps.containsAll(emps));
+	    	
     	}
+    	List<Employee> dbEmps = employeeDB.listAllEmployees();
+    	assertTrue(dbEmps.containsAll(emps));
     }
 
     /**
