@@ -29,47 +29,56 @@ public class EmployeeDBHTTPHandler extends AbstractHandler {
     @SuppressWarnings("unchecked")
     public void handle(String target, Request baseRequest,
             HttpServletRequest req, HttpServletResponse res)
-            throws IOException, ServletException {
+                    throws IOException, ServletException {
 
         res.setContentType("text/html;charset=utf-8");
         res.setStatus(HttpServletResponse.SC_OK);
         String uri = req.getRequestURI().trim().toLowerCase();
         XStream xmlStream = new XStream(new StaxDriver());
+        String method = req.getMethod().toLowerCase();
 
-        int len = req.getContentLength();
-        BufferedReader reqReader = req.getReader();
-        char[] cbuf = new char[len];
-        reqReader.read(cbuf);
-        reqReader.close();
-        String content = new String(cbuf);
-
-        switch(uri) {
-        case "/addemployee":
-            Employee emp = (Employee) xmlStream.fromXML(req.getParameter("employee"));
-            SimpleEmployeeDB.getInstance().addEmployee(emp);
-            break;
-        case "/listallemployees":
-            List<Employee> emps = SimpleEmployeeDB.getInstance().listAllEmployees();
-            res.getWriter().println(xmlStream.toXML(emps));
-            break;
-        case "/listemployeesindept":
-            List<Integer> deps = (List<Integer>) xmlStream.fromXML(content);
-            List<Employee> emps1 = SimpleEmployeeDB.getInstance().listEmployeesInDept(deps);
-            res.getWriter().println(xmlStream.toXML(emps1));
-            break;
-        case "/incrementsalaryofdepartment":
-            List<SalaryIncrement> incs = (List<SalaryIncrement>) xmlStream.fromXML(content);
-            try {
-                SimpleEmployeeDB.getInstance().incrementSalaryOfDepartment(incs);
-            } catch (DepartmentNotFoundException e) {
-                res.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);;
-            } catch (NegativeSalaryIncrementException e) {
-                res.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        if (method.equals("get")) {
+            switch (uri) {
+            case "/addemployee":
+                Employee emp = (Employee) xmlStream.fromXML(req.getParameter("employee"));
+                SimpleEmployeeDB.getInstance().addEmployee(emp);
+                break;
+            case "/listallemployees":
+                List<Employee> emps = SimpleEmployeeDB.getInstance().listAllEmployees();
+                res.getWriter().println(xmlStream.toXML(emps));
+                break;
             }
-            break;
-        default:
-            res.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            break;
+        } else {
+            int len = req.getContentLength();
+            BufferedReader reqReader = req.getReader();
+            char[] cbuf = new char[len];
+            reqReader.read(cbuf);
+            reqReader.close();
+            String content = new String(cbuf);
+
+            switch (uri) {
+            case "/listemployeesindept":
+                List<Integer> deps = (List<Integer>) xmlStream.fromXML(content);
+                List<Employee> emps1 = SimpleEmployeeDB.getInstance()
+                        .listEmployeesInDept(deps);
+                res.getWriter().println(xmlStream.toXML(emps1));
+                break;
+            case "/incrementsalaryofdepartment":
+                List<SalaryIncrement> incs = (List<SalaryIncrement>) xmlStream
+                        .fromXML(content);
+                try {
+                    SimpleEmployeeDB.getInstance().incrementSalaryOfDepartment(incs);
+                } catch (DepartmentNotFoundException e) {
+                    res.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                    ;
+                } catch (NegativeSalaryIncrementException e) {
+                    res.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                }
+                break;
+            default:
+                res.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                break;
+            }
         }
         baseRequest.setHandled(true);
     }
