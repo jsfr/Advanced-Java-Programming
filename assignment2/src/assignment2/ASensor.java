@@ -16,7 +16,7 @@ public class ASensor implements Sensor, Runnable {
         Float hum = (float) b*50+50;
         sr.setHumidity(hum);
         sr.setTemperature(temp);
-        System.out.println("Humidity: " + hum + "(" + b + "), Temp: " + temp + "(" + b + ")");
+        //System.out.println("Humidity: " + hum + "(" + b + "), Temp: " + temp + "(" + b + ")");
         return sr;
     }
 
