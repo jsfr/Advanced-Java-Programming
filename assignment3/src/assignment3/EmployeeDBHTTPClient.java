@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.eclipse.jetty.client.ContentExchange;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.HttpExchange;
@@ -80,22 +82,32 @@ public class EmployeeDBHTTPClient implements EmployeeDBClient, EmployeeDB {
     		exchange.setMethod("GET");
     		String xmlString = xmlStream.toXML(emp);
     		exchange.setURL(this.getServerURLForDepartment(emp.getDepartment()));
-    		exchange.setRequestHeader("addEmployee",xmlString);  //no clue if this works. Fuck Jetty and its documentation
+    		exchange.setRequestURI("/addEmployee");
+    		exchange.addRequestHeader("employee",xmlString);  //no clue if this works. Fuck Jetty and its documentation
     		client.send(exchange);
     		
     		int exchangeState = exchange.waitForDone();
     		System.out.println(String.valueOf(exchangeState));
     		if (exchangeState == HttpExchange.STATUS_COMPLETED) {
-    			System.out.println("Status_ok");
+    			int httpStatus = exchange.getResponseStatus();
+    			
+    			switch(httpStatus) {
+    				case HttpServletResponse.SC_OK: 
+    						System.out.println("Status_ok");
+    						break;
+    				default: 
+    					System.out.println("Request not found.");
+    					return;
+    			}
     		} else if (exchangeState == HttpExchange.STATUS_EXCEPTED) {
-    			System.out.println("Error occured. Could not get all employees. Continuing.");
+    			System.out.println("Error occured in connection.");
     		} else if (exchangeState == HttpExchange.STATUS_EXPIRED) {
-    			System.out.println("Request timed out. Could not get all employees. Continuing.");
+    			System.out.println("Request timed out.");
     		}
     	} catch (DepartmentNotFoundException e){
     		System.out.println(e);
     	} catch (IOException e) {
-			System.out.println("Could not add employee. IO exception.");
+			System.out.println("IO exception.");
 		} catch (InterruptedException e) {
 			System.out.println("Could not recieve list of employee. Interrupted exception.");
 		}
@@ -112,30 +124,39 @@ public class EmployeeDBHTTPClient implements EmployeeDBClient, EmployeeDB {
     		exchange.setMethod("GET");
     		for(String url : departmentServerURLMap.values()) {
 	    		exchange.setURL(url);
-	    		exchange.setRequestHeader("listAllEmployees","");  //no clue if this works. Fuck Jetty and its documentation
+	    		exchange.setRequestURI("listAllEmployees");
 	    		client.send(exchange);
 	    		
 	    		//Wait for result
 	    		int exchangeState = exchange.waitForDone();
 	    		System.out.println(String.valueOf(exchangeState));
 	    		if (exchangeState == HttpExchange.STATUS_COMPLETED) {
-	    			System.out.println("Status_ok");
-	    			String content = exchange.getResponseContent();
-	    			emps.addAll((List<Employee>) xmlStream.fromXML(content));
+	    			int httpStatus = exchange.getResponseStatus();
+	    			switch(httpStatus) {
+	    				case HttpServletResponse.SC_OK: 
+	    					System.out.println("Status_ok");
+		    				String content = exchange.getResponseContent();
+			    			emps.addAll((List<Employee>) xmlStream.fromXML(content));
+    						break;
+	    				default: 
+	    					System.out.println("Request not found.");
+	    					return null;
+	    			}
 	    		} else if (exchangeState == HttpExchange.STATUS_EXCEPTED) {
-	    			System.out.println("Error occured. Could not get all employees. Continuing.");
+	    			System.out.println("Error occured in connection.");
+	    			return null;
 	    		} else if (exchangeState == HttpExchange.STATUS_EXPIRED) {
-	    			System.out.println("Request timed out. Could not get all employees. Continuing.");
+	    			System.out.println("Request timed out.");
+	    			return null;
 	    		}
     		}
     		return emps;
     	} catch (IOException e) {
 			System.out.println("Could not recieve list of employee. IO exception.");
-			return null;
 		} catch (InterruptedException e) {
 			System.out.println("Could not recieve list of employee. Interrupted exception.");
-			return null;
 		}
+    	return null;
     }
 
     @SuppressWarnings("unchecked")
@@ -146,7 +167,7 @@ public class EmployeeDBHTTPClient implements EmployeeDBClient, EmployeeDB {
     		exchange.setMethod("POST");
     		for(int dpId : departmentIds){
     			exchange.setURL(this.getServerURLForDepartment(dpId));
-    			exchange.setRequestURI("listEmployeesInDept");
+    			exchange.setRequestURI("/listEmployeesInDept");
     			Buffer postData = new ByteArrayBuffer(String.valueOf(dpId));
     			exchange.setRequestContent(postData);
     			client.send(exchange);
@@ -155,29 +176,34 @@ public class EmployeeDBHTTPClient implements EmployeeDBClient, EmployeeDB {
 	    		int exchangeState = exchange.waitForDone();
 	    		System.out.println(String.valueOf(exchangeState));
 	    		if (exchangeState == HttpExchange.STATUS_COMPLETED) {
-	    			System.out.println("Status_ok");
-	    			String content = exchange.getResponseContent();
-	    			emps.addAll((List<Employee>) xmlStream.fromXML(content));
+	    			int httpStatus = exchange.getResponseStatus();
+	    			switch(httpStatus) {
+    				case HttpServletResponse.SC_OK: 
+    						System.out.println("Status_ok");
+    						String content = exchange.getResponseContent();
+    		    			emps.addAll((List<Employee>) xmlStream.fromXML(content));
+    						break;
+    				default:
+    						System.out.println("Request not found.");
+    						return null;
+	    			}
 	    		} else if (exchangeState == HttpExchange.STATUS_EXCEPTED) {
-	    			System.out.println("Error occured. Could not get all employees. Continuing.");
+	    			System.out.println("Error occured in connection.");
+	    			return null;
 	    		} else if (exchangeState == HttpExchange.STATUS_EXPIRED) {
-	    			System.out.println("Request timed out. Could not get all employees. Continuing.");
+	    			System.out.println("Request timed out.");
+	    			return null;
 	    		}
     		}
     		
     		client.send(exchange);
     	} catch (IOException e) {
 			System.out.println("Could not recieve list of employee. IO exception.");
-			return null;
 		} catch (InterruptedException e) {
 			System.out.println("Could not recieve list of employee. Interrupted exception.");
-			return null;
 		} catch (DepartmentNotFoundException e){
     		System.out.println(e);
-    		return null;
 		}
-    	
-    	
         return null;
     }
 
@@ -195,7 +221,7 @@ public class EmployeeDBHTTPClient implements EmployeeDBClient, EmployeeDB {
 	        for(SalaryIncrement s : salaryIncrements){
 	        	String xmlString = xmlStream.toXML(s);
 	        	exchange.setURL(this.getServerURLForDepartment(s.getDepartment()));
-    			exchange.setRequestURI("incrementSalaryOfDepartment");
+    			exchange.setRequestURI("/incrementSalaryOfDepartment");
     			Buffer postData = new ByteArrayBuffer(xmlString);
     			exchange.setRequestContent(postData);
     			client.send(exchange);
@@ -204,12 +230,24 @@ public class EmployeeDBHTTPClient implements EmployeeDBClient, EmployeeDB {
 	    		int exchangeState = exchange.waitForDone();
 	    		System.out.println(String.valueOf(exchangeState));
 	    		if (exchangeState == HttpExchange.STATUS_COMPLETED) {
-	    			System.out.println("Status_ok");
-	    			//Do nothing
+	    			int httpStatus = exchange.getResponseStatus();
+	    			switch(httpStatus) {
+    				case HttpServletResponse.SC_OK: 
+    						System.out.println("Status_ok");
+    						break;
+    				case HttpServletResponse.SC_INTERNAL_SERVER_ERROR: 
+    						System.out.println("Could not add employee.");
+    						throw new NegativeSalaryIncrementException();
+    				default:
+    						System.out.println("Request not found.");
+    						return;
+    			}
 	    		} else if (exchangeState == HttpExchange.STATUS_EXCEPTED) {
-	    			System.out.println("Error occured. Could not get all employees. Continuing.");
+	    			System.out.println("Error occured in connection.");
+	    			return;
 	    		} else if (exchangeState == HttpExchange.STATUS_EXPIRED) {
-	    			System.out.println("Request timed out. Could not get all employees. Continuing.");
+	    			System.out.println("Request timed out.");
+	    			return;
 	    		}
 	        }
     	} catch (IOException e) {
